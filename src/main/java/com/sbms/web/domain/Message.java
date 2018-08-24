@@ -1,8 +1,15 @@
 package com.sbms.web.domain;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 public class Message {
+    @NotNull
+    @NotEmpty
     private String language;
 
+    @NotNull
+    @NotEmpty
     private String content;
 
     public Message() {

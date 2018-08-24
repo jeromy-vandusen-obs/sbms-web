@@ -11,12 +11,17 @@ public class MessageRepositoryFallback implements MessageRepository {
     @Override
     public List<Message> getMessages() {
         return Arrays.asList(
-                new Message("en", "Error")
+                new Message("??", "Error")
         );
     }
 
     @Override
     public Message getMessage(String language) {
         return new Message(language, "Error");
+    }
+
+    @Override
+    public Message createMessage(Message message) {
+        return new Message("??", "Error");
     }
 }
