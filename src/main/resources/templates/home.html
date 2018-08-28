@@ -8,7 +8,10 @@
 </head>
 <body class="container">
 <h1>Spring Boot Microservices - Demo Application</h1>
-<h2 th:text="${customMessage}">Insert Custom Message Here</h2>
+<p>
+    <b>Your personalized message:</b>
+    <span th:text="${customMessage}">Greetings</span>
+</p>
 
 <form th:action="@{/}" method="post" th:object="${newMessage}">
     <table class="table table-striped">
