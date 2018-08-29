@@ -2,6 +2,7 @@ package com.sbms.web.ui;
 
 import com.sbms.web.domain.Message;
 import com.sbms.web.domain.repositories.MessageRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,24 @@ import java.util.Locale;
 public class HomeController {
     private final MessageRepository messageRepository;
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+    @Value("${build.version}")
+    private String buildVersion;
+
     public HomeController(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
+    }
+
+    @ModelAttribute("applicationName")
+    public String applicationName() {
+        return applicationName;
+    }
+
+    @ModelAttribute("buildVersion")
+    public String buildVersion() {
+        return buildVersion;
     }
 
     @ModelAttribute("newMessage")
