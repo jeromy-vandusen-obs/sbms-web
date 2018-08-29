@@ -5,7 +5,7 @@
 
     <groupId>com.sbms</groupId>
     <artifactId>sbms-web</artifactId>
-    <version>1.3.0-${buildNumber}</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <name>sbms-web</name>
@@ -22,8 +22,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-
-        <buildNumber>SNAPSHOT</buildNumber>
 
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
 

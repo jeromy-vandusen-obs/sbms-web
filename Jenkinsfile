@@ -10,6 +10,11 @@ pipeline {
     }
 
     stages {
+        stage('Set Version') {
+            steps {
+                sh "mvn versions:set -DnewVersion=\$(mvn help:evaluate -Dexpression=project.version | grep -e '^[^\\[]')-$BUILD_NUMBER"
+            }
+        }
         stage('Run Unit Tests') {
             steps {
                 sh "mvn clean test -DbuildNumber=$BUILD_NUMBER"
@@ -36,6 +41,11 @@ pipeline {
                     sh "mvn dockerfile:push@version dockerfile:push@latest -DskipTests -DbuildNumber=$BUILD_NUMBER -Ddockerfile.username=$DOCKER_HUB_USERNAME -Ddockerfile.password=$DOCKER_HUB_PASSWORD"
                 }
             }
+        }
+    }
+    post {
+        always {
+            sh "mvn versions:revert"
         }
     }
 }
