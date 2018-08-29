@@ -5,9 +5,7 @@ import com.sbms.web.domain.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -57,12 +55,18 @@ public class HomeController {
         return "home";
     }
 
-    @PostMapping(value = "/")
+    @PostMapping("/")
     public String createMessage(@Valid @ModelAttribute("newMessage") Message newMessage, BindingResult result) {
         if (result.hasErrors()) {
             return "home";
         }
-        messageRepository.createMessage(newMessage);
+        messageRepository.putMessage(newMessage.getLanguage(), newMessage);
+        return "redirect:/";
+    }
+
+    @PostMapping("/deleteMessage/{language}")
+    public String deleteMessage(@PathVariable String language) {
+        messageRepository.deleteMessage(language);
         return "redirect:/";
     }
 }

@@ -13,29 +13,32 @@
     <span th:text="${customMessage}">Greetings</span>
 </div>
 
-<form th:action="@{/}" method="post" th:object="${newMessage}">
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Language</th>
-            <th>Content</th>
-            <th>&nbsp;</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="form-group">
-            <td><input class="form-control" type="text" th:field="*{language}" autofocus/></td>
-            <td><input class="form-control" type="text" th:field="*{content}"/></td>
-            <td><button class="btn btn-primary" type="submit">Add</button></td>
-        </tr>
-        <tr th:each="message : ${messages}">
-            <td th:text="${message.language}"></td>
-            <td th:text="${message.content}"></td>
-            <td>&nbsp;</td>
-        </tr>
-        </tbody>
-    </table>
-</form>
+<form id="newMessage" th:action="@{/}" method="post" th:object="${newMessage}"></form>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Language</th>
+        <th>Content</th>
+        <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="form-group">
+        <td><input form="newMessage" class="form-control" type="text" th:field="${newMessage.language}" autofocus/></td>
+        <td><input form="newMessage" class="form-control" type="text" th:field="${newMessage.content}"/></td>
+        <td><button form="newMessage" class="btn btn-primary" type="submit">Add</button></td>
+    </tr>
+    <tr th:each="message : ${messages}">
+        <td th:text="${message.language}"></td>
+        <td th:text="${message.content}"></td>
+        <td>
+            <form th:action="@{/deleteMessage/{language}(language=${message.language})}" method="post">
+                <button class="btn btn-danger" type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 <div class="alert alert-secondary" role="alert">
     <b>Application:</b>
