@@ -33,6 +33,8 @@
         <!-- Upgrade Maven Surefire plugin to avoid issues when building on Jenkins running in an Alpine-based Docker image. -->
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <spring-cloud-contract.version>2.0.1.RELEASE</spring-cloud-contract.version>
+
+        <jsoup.version>1.11.3</jsoup.version>
     </properties>
 
     <dependencies>
@@ -86,6 +88,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-contract-stub-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
