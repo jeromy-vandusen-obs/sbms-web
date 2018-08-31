@@ -23,12 +23,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
+        <skipUnitTests>false</skipUnitTests>
+        <skipIntegrationTests>false</skipIntegrationTests>
+
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
 
         <dockerfile-maven-plugin.version>1.4.3</dockerfile-maven-plugin.version>
         <docker-image.prefix>jvandusen</docker-image.prefix>
         <!-- Upgrade Maven Surefire plugin to avoid issues when building on Jenkins running in an Alpine-based Docker image. -->
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+        <spring-cloud-contract.version>2.0.1.RELEASE</spring-cloud-contract.version>
     </properties>
 
     <dependencies>
@@ -58,6 +62,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
@@ -66,6 +76,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-wiremock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-stub-runner</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -87,6 +107,34 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>${skipUnitTests}</skip>
+                    <excludes>
+                        <exclude>com/sbms/web/integration/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skip>${skipIntegrationTests}</skip>
+                    <includes>
+                        <include>com/sbms/web/integration/**/*</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

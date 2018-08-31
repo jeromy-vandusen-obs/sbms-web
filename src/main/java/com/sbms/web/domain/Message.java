@@ -1,39 +1,22 @@
 package com.sbms.web.domain;
 
+import lombok.*;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+@NoArgsConstructor
+@RequiredArgsConstructor
+@Getter
+@EqualsAndHashCode
 public class Message {
     @NotNull
+    @NonNull
     @NotEmpty
     private String language;
 
     @NotNull
+    @NonNull
     @NotEmpty
     private String content;
-
-    public Message() {
-        super();
-    }
-
-    public Message(String language, String content) {
-        this.language = language;
-        this.content = content;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }
