@@ -42,7 +42,13 @@ public class HomeController {
 
     @ModelAttribute("customMessage")
     public String customMessage(Locale locale) {
-        return messageRepository.getMessage(locale.getLanguage()).getContent();
+        try {
+            return messageRepository.getMessage(locale.getLanguage()).getContent();
+        }
+        catch (Throwable t) {
+            System.out.println("***** " + t.getClass().getName());
+            throw t;
+        }
     }
 
     @ModelAttribute("messages")
