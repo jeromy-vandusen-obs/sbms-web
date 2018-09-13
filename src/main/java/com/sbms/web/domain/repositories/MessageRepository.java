@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "http://sbms-greeting", fallbackFactory = MessageRepositoryFallbackFactory.class)
+@FeignClient(name = "sbms-greeting", fallbackFactory = MessageRepositoryFallbackFactory.class)
 public interface MessageRepository {
     @GetMapping("/v1/messages")
     List<Message> getMessages();
