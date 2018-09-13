@@ -63,5 +63,8 @@ pipeline {
         always {
             sh "mvn versions:revert"
         }
+        failure {
+            "<${env.BUILD_URL}|${env.JOB_NAME} #${env.BUILD_NUMBER}>: :fire: Failed :fire:"
+        }
     }
 }
