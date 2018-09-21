@@ -28,3 +28,8 @@ of the dependent services are determined by calling the `/actuator/health` endpo
 a dependent service is also dependent on another service, then that service should have its own `/dependencyHealth`
 endpoint, and this endpoint should call that instead. Currently, there are no such transitive dependencies, so this
 service can safely rely solely on the `/actuator/health` endpoint for now.
+
+## To Do
+
+* Add security and a login page.
+* Consider adding a gateway in front of this.
