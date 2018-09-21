@@ -1,4 +1,4 @@
-package com.sbms.web.actuator;
+package com.sbms.web.rest;
 
 import com.sbms.web.domain.repositories.MessageActuatorRepository;
 import org.springframework.web.bind.annotation.GetMapping;

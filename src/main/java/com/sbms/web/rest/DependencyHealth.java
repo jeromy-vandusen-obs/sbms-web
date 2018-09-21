@@ -1,4 +1,4 @@
-package com.sbms.web.actuator;
+package com.sbms.web.rest;
 
 import java.util.Arrays;
 import java.util.List;
