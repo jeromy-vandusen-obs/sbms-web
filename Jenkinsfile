@@ -13,59 +13,192 @@ pipeline {
         timeout(time: 15, unit: 'MINUTES')
     }
 
+    environment {
+        DEV_HOST = "dev"
+        TEST_HOST = "test"
+        TEST_PORT = "28080"
+        UAT_HOST = "uat"
+        PROD_HOST = "prod"
+
+        IMAGE_NAME = "$DOCKER_IMAGE_PREFIX/$JOB_NAME"
+    }
+
     stages {
         stage('Set Version') {
             steps {
-                mvn "versions:set -DnewVersion=\$(./mvnw help:evaluate -Dexpression=project.version | grep -e '^[^\\[\\/]')-$BUILD_NUMBER"
+                setVersion()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
             }
         }
         stage('Run Unit Tests') {
             steps {
-                mvn "clean test"
+                runUnitTests()
             }
             post {
                 always {
-                    junit "target/surefire-reports/*.xml"
+                    archiveUnitTestResults()
+                }
+                failure {
+                    notifyFailure()
                 }
             }
         }
         stage('Build Application') {
             steps {
-                mvn "package -DskipTests"
+                buildApplication()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
             }
         }
         stage('Run Integration Tests') {
             steps {
-                mvn "verify -DskipUnitTests"
+                runIntegrationTests()
             }
             post {
                 always {
-                    junit "target/failsafe-reports/*.xml"
+                    archiveIntegrationTestResults()
+                }
+                failure {
+                    notifyFailure()
+                }
+            }
+        }
+        stage('Install Contract Stubs') {
+            steps {
+                installContractStubs()
+            }
+            post {
+                failure {
+                    notifyFailure()
                 }
             }
         }
         stage('Build Image') {
             steps {
-                mvn "dockerfile:build@version dockerfile:tag@latest -DskipTests"
+                buildImage()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
             }
         }
         stage('Push Image to Registry') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-                    mvn "dockerfile:push@version dockerfile:push@latest -DskipTests -Ddockerfile.username=$DOCKER_HUB_USERNAME -Ddockerfile.password=$DOCKER_HUB_PASSWORD"
+                pushToDockerHub()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
+            }
+        }
+        stage('Tag Commit') {
+            steps {
+                tagGitCommit()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
+            }
+        }
+        stage('Deploy to DEV') {
+            steps {
+                promoteAndUpdateRunningImage("tcp://$DEV_HOST:2376", IMAGE_NAME, "latest", "dev", "sbms-dev_$JOB_NAME")
+            }
+            post {
+                failure {
+                    notifyFailure('Failed to deploy properly to the *DEV* environment and may be in an unstable state.')
+                }
+            }
+        }
+        stage('Deploy to TEST') {
+            steps {
+                promoteAndUpdateRunningImage("tcp://$TEST_HOST:2376", IMAGE_NAME, "dev", "test", "sbms-test_$JOB_NAME")
+            }
+            post {
+                failure {
+                    notifyFailure('Failed to deploy properly to the *TEST* environment and may be in an unstable state.')
+                }
+            }
+        }
+        stage('Wait For Environment') {
+            steps {
+                script {
+                    currentBuild.result = waitForEnvironment(TEST_HOST, TEST_PORT)
+                }
+            }
+            post {
+                failure {
+                    notifyFailure('The *TEST* environment did not become available in a reasonable time.')
+                }
+            }
+        }
+        stage('Run Acceptance Tests') {
+            steps {
+                runAcceptanceTests()
+            }
+            post {
+                failure {
+                    notifyFailure()
+                }
+            }
+        }
+        stage ('Tag Tested Image') {
+            steps {
+                tagImage(IMAGE_NAME, "test", "test-passed")
+            }
+            post {
+                failure {
+                    notifyFailure('Tests were completed, but images were not properly marked as test-passed.')
+                }
+            }
+        }
+        stage('Deploy to UAT') {
+            steps {
+                promoteAndUpdateRunningImage("tcp://$UAT_HOST:2376", IMAGE_NAME, "test-passed", "uat", "sbms-uat_$JOB_NAME")
+            }
+            post {
+                failure {
+                    notifyFailure('Failed to deploy properly to the *UAT* environment and may be in an unstable state.')
+                }
+            }
+        }
+        stage('Prepare Release Candidate') {
+            steps {
+                tagImage(IMAGE_NAME, "uat", "rc")
+            }
+            post {
+                failure {
+                    notifyFailure('Was not able to be accepted as a Release Candidate.')
+                }
+            }
+        }
+        stage('Deploy to PROD') {
+            steps {
+                promoteAndUpdateRunningImage("tcp://$PROD_HOST:2376", IMAGE_NAME, "rc", "prod", "sbms-prod_$JOB_NAME")
+            }
+            post {
+                failure {
+                    notifyProdFailure('Failed to deploy to production!')
                 }
             }
         }
     }
     post {
         always {
-            mvn "versions:revert"
+            revertVersion()
         }
         success {
-            notify('', 'Succeeded')
-        }
-        failure {
-            notify('FAIL', 'Failed')
+            notifyProdSuccess('Production deployment successfully completed!')
         }
     }
 }
